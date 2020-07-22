@@ -1,0 +1,27 @@
+a
+b
+c
+a
+b
+c
+a
+b
+c
+a
+b
+c
+a
+b
+c
+a
+b
+c
+a
+b
+c
+Create a REST API
+Create a Client in IONIC
+Publish the result
+Create a REST API
+Create a Client in IONIC
+Publish the result
