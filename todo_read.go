@@ -6,12 +6,21 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 func GetTasks(w http.ResponseWriter, r *http.Request) {
-	log.Print("Get Tasks requested")
+	params := mux.Vars(r)
+	id := params["id"]
+	log.Print("Get Tasks requested", id)
 	fileContents := readFile("test.txt")
-	json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 200, Message: "OK", Response: fileContents})
+	if value, err := strconv.Atoi(id); err == nil {
+		json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 200, Message: "OK", Response: fileContents[(value - 1):(value * 10)]})
+	} else {
+		json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 200, Message: "OK", Response: fileContents})
+	}
 }
 
 func readFile(filename string) []string {

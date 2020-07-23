@@ -33,6 +33,7 @@ func main() {
 	CreateMockData()
 	router := mux.NewRouter()
 	router.HandleFunc("/task", GetTasks).Methods("GET")
+	router.HandleFunc("/generatereport", Createreport).Methods("GET")
 	router.HandleFunc("/task/{id}", GetTask).Methods("GET")
 	router.HandleFunc("/task", CreateTasktest).Methods("POST")
 	router.HandleFunc("/task/{id}", DeleteTask).Methods("DELETE")

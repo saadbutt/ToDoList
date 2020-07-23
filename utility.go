@@ -104,15 +104,3 @@ func getLastID() int {
 	task = tasks[len(tasks)-1]
 	return task.ID + 1
 }
-
-func DeleteTask(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	id := params["id"]
-	log.Print("Delete Task with ID: " + id + " requested")
-	if value, err := strconv.Atoi(id); err == nil {
-		deleteFile("test.txt", value)
-		json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 200, Message: "OK", Response: "Task deleted"})
-	} else {
-		json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 400, Message: "Bad request", Response: "Id is not a number"})
-	}
-}
