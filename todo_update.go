@@ -1,12 +1,31 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/gorilla/mux"
 )
+
+func UpdateTask(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	id := params["id"]
+	log.Print("Update Task with ID: " + id + " requested")
+	if value, err := strconv.Atoi(id); err == nil {
+		var task Task
+		_ = json.NewDecoder(r.Body).Decode(&task)
+		updateFile("test.txt", value, task)
+
+		json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 200, Message: "OK", Response: value})
+	} else {
+		json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 400, Message: "Bad request", Response: "Id is not a number"})
+	}
+}
 
 func updateFile(filename string, tasknumber int, task Task) {
 	input, err := ioutil.ReadFile(filename)
