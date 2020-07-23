@@ -26,9 +26,9 @@ type FileMD struct {
 
 func main() {
 
-	args := []string{"a", "b", "c"}
+	//args := []string{"a", "b", "c"}
 
-	writeFile("test.txt", args)
+	//	writeFile("test.txt", args)
 
 	CreateMockData()
 	router := mux.NewRouter()
