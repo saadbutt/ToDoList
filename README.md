@@ -1,8 +1,17 @@
+# Link of Published DOCS for frontend Developers
+
+https://documenter.getpostman.com/view/5840690/T1DpDJ7c
+
+
 # RUN PROJECT
 
 go build
 ./ToDoList
 
+
+# POSTMAN COLLECTION is also in Files Folder
+
+task.postman_collection.json
 
 
 # ToDoList

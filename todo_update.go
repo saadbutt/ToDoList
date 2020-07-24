@@ -19,7 +19,7 @@ func UpdateTask(w http.ResponseWriter, r *http.Request) {
 	if value, err := strconv.Atoi(id); err == nil {
 		var task Task
 		_ = json.NewDecoder(r.Body).Decode(&task)
-		updateFile("Files/test.txt", value, task)
+		updateFile("Files/database.txt", value, task)
 
 		json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 200, Message: "OK", Response: value})
 	} else {
@@ -36,7 +36,7 @@ func updateFile(filename string, tasknumber int, task Task) {
 	lines := strings.Split(string(input), "\n")
 
 	for i, line := range lines {
-		if strings.Contains(line, "{"+strconv.Itoa(tasknumber)) {
+		if strings.Contains(line, "{"+strconv.Itoa(tasknumber)+" ") {
 			lines[i] = "{" + strconv.Itoa(tasknumber) + " " + task.Title + " " + task.Description + " " + task.Created + " " + task.CompletionDate + " " + task.DueDate + " " + strconv.FormatBool(task.Completed) + "}"
 		}
 	}

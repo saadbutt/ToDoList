@@ -10,31 +10,43 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
+
+type catching struct {
+	filename    string
+	createddate time.Time
+}
+
+var mapping = map[string]time.Time{}
 
 // Count of total tasks, completed tasks, and remaining tasks (aggregate all 3 in parallel)
 func Createreport(w http.ResponseWriter, r *http.Request) {
 	Logger("create Report of Count of total tasks, completed tasks, and remaining tasks")
-	total, completed, remining := calculatetotaltasks()
-	file, err := os.Create("Files/tasksreport.csv")
-	defer file.Close()
+	if time.Now().After(mapping["tasksreport"].Add(time.Minute * 15)) {
+		total, completed, remining := calculatetotaltasks()
+		file, err := os.Create("Files/tasksreport.csv")
+		defer file.Close()
 
-	if err != nil {
-		os.Exit(1)
+		if err != nil {
+			os.Exit(1)
+		}
+
+		x := []string{"Total", "Completed", "Remaining"}
+		y := []string{total, completed, remining}
+		csvWriter := csv.NewWriter(file)
+		strWrite := [][]string{x, y}
+		csvWriter.WriteAll(strWrite)
+		csvWriter.Flush()
+		mapping["tasksreport"] = time.Now()
 	}
 
-	x := []string{"Total", "Completed", "Remaining"}
-	y := []string{total, completed, remining}
-	csvWriter := csv.NewWriter(file)
-	strWrite := [][]string{x, y}
-	csvWriter.WriteAll(strWrite)
-	csvWriter.Flush()
 	json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 200, Message: "OK", Response: "PDF Generated. Downloadable Link http://localhost:8000/Files/tasksreport.csv"})
 
 }
 
 func calculatetotaltasks() (string, string, string) {
-	input, err := ioutil.ReadFile("Files/test.txt")
+	input, err := ioutil.ReadFile("Files/database.txt")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -50,9 +62,7 @@ func calculatetotaltasks() (string, string, string) {
 			completedtasks += 1
 		}
 	}
-	log.Println("completedtasks", completedtasks)
-	log.Println("total tasks", counttotaltasks)
-	log.Print("Remaining tasks", counttotaltasks-completedtasks)
+
 	return strconv.Itoa(counttotaltasks), strconv.Itoa(completedtasks), strconv.Itoa((counttotaltasks - completedtasks))
 }
 
@@ -80,7 +90,7 @@ func maxTasksAdded(w http.ResponseWriter, r *http.Request) {
 }
 
 func Counttaskscompleted() {
-	input, err := ioutil.ReadFile("Files/test.txt")
+	input, err := ioutil.ReadFile("Files/database.txt")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -95,30 +105,32 @@ func Counttaskscompleted() {
 			counts[subline[4]]++
 		}
 	}
+	if time.Now().After(mapping["CompletedTaskreport"].Add(time.Minute * 15)) {
 
-	log.Print("create Report")
-	file, err := os.Create("Files/CompletedTaskreport.csv")
-	defer file.Close()
+		file, err := os.Create("Files/CompletedTaskreport.csv")
+		defer file.Close()
 
-	if err != nil {
-		os.Exit(1)
+		if err != nil {
+			os.Exit(1)
+		}
+		csvWriter := csv.NewWriter(file)
+
+		for key, value := range counts {
+			avg := float64(value) / float64(totaltasks)
+			// fmt.Println("avg:", avg)
+			occurence := strconv.FormatFloat(avg, 'f', 6, 64)
+			x := []string{"Date", "AVGTasks"}
+			y := []string{key, occurence}
+			strWrite := [][]string{x, y}
+			mapping["CompletedTaskreport"] = time.Now()
+			csvWriter.WriteAll(strWrite)
+		}
+		csvWriter.Flush()
 	}
-	csvWriter := csv.NewWriter(file)
-
-	for key, value := range counts {
-		fmt.Println("Key:", key, "Value:", value)
-		occurence := strconv.Itoa(value / totaltasks)
-		x := []string{"Date", "AVGTasks"}
-		y := []string{key, occurence}
-		strWrite := [][]string{x, y}
-		csvWriter.WriteAll(strWrite)
-	}
-	csvWriter.Flush()
-
 }
 
 func Countmaxtaskscompleted() {
-	input, err := ioutil.ReadFile("Files/test.txt")
+	input, err := ioutil.ReadFile("Files/database.txt")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -133,35 +145,36 @@ func Countmaxtaskscompleted() {
 		}
 	}
 
-	log.Print("create Report")
-	file, err := os.Create("Files/maxtasksreport.csv")
-	defer file.Close()
+	if time.Now().After(mapping["maxtasksreport"].Add(time.Minute * 15)) {
 
-	if err != nil {
-		os.Exit(1)
-	}
-	csvWriter := csv.NewWriter(file)
-	max := 0
-	var date string
-	for key, value := range counts {
-		fmt.Println("Key:", key, "Value:", value)
-		if max < value {
-			date = key
-			max = value
+		file, err := os.Create("Files/maxtasksreport.csv")
+		defer file.Close()
+
+		if err != nil {
+			os.Exit(1)
 		}
+		csvWriter := csv.NewWriter(file)
+		max := 0
+		var date string
+		for key, value := range counts {
+			if max < value {
+				date = key
+				max = value
+			}
+		}
+
+		occurence := strconv.Itoa(max)
+		x := []string{"Date", "MAX Tasks"}
+		y := []string{date, occurence}
+		strWrite := [][]string{x, y}
+		csvWriter.WriteAll(strWrite)
+		mapping["maxtasksreport"] = time.Now()
+		csvWriter.Flush()
 	}
-
-	occurence := strconv.Itoa(max)
-	x := []string{"Date", "MAX Tasks"}
-	y := []string{date, occurence}
-	strWrite := [][]string{x, y}
-	csvWriter.WriteAll(strWrite)
-	csvWriter.Flush()
-
 }
 
 func Counttasksadded() {
-	input, err := ioutil.ReadFile("Files/test.txt")
+	input, err := ioutil.ReadFile("Files/database.txt")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -181,24 +194,26 @@ func Counttasksadded() {
 		}
 	}
 
-	log.Print("create Report")
-	file, err := os.Create("Files/addedtasksreport.csv")
-	defer file.Close()
+	if time.Now().After(mapping["addedtasksreport"].Add(time.Minute * 15)) {
 
-	if err != nil {
-		os.Exit(1)
-	}
-	csvWriter := csv.NewWriter(file)
-	x := []string{"Date", "MAX Tasks"}
+		file, err := os.Create("Files/addedtasksreport.csv")
+		defer file.Close()
 
-	for key, value := range counts {
-		fmt.Println("Key:", key, "Value:", value)
-		if maxdays == value {
-			y := []string{key, strconv.Itoa(value)}
-			strWrite := [][]string{x, y}
-			csvWriter.WriteAll(strWrite)
+		if err != nil {
+			os.Exit(1)
 		}
-	}
+		csvWriter := csv.NewWriter(file)
+		x := []string{"Date", "MAX Tasks"}
 
-	csvWriter.Flush()
+		for key, value := range counts {
+			fmt.Println("Key:", key, "Value:", value)
+			if maxdays == value {
+				y := []string{key, strconv.Itoa(value)}
+				strWrite := [][]string{x, y}
+				csvWriter.WriteAll(strWrite)
+			}
+		}
+		mapping["addedtasksreport"] = time.Now()
+		csvWriter.Flush()
+	}
 }

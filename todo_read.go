@@ -15,7 +15,7 @@ func GetTask(w http.ResponseWriter, r *http.Request) {
 	limit, ok := r.URL.Query()["limit"]
 	offset, okay := r.URL.Query()["offset"]
 
-	fileContents := readFile("Files/test.txt")
+	fileContents := readFile("Files/database.txt")
 	if !ok || len(limit[0]) < 0 || !okay || len(offset[0]) < 0 {
 		json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 200, Message: "OK", Response: fileContents})
 

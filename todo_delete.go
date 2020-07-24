@@ -17,7 +17,7 @@ func DeleteTask(w http.ResponseWriter, r *http.Request) {
 	Logger("Delete Task with ID: " + id + " requested")
 	log.Print("Delete Task with ID: " + id + " requested")
 	if value, err := strconv.Atoi(id); err == nil {
-		deleteFile("Files/test.txt", value)
+		deleteFile("Files/database.txt", value)
 		json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 200, Message: "OK", Response: "Task deleted"})
 	} else {
 		json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 400, Message: "Bad request", Response: "Id is not a number"})
@@ -33,7 +33,7 @@ func deleteFile(filename string, tasknumber int) {
 	lines := strings.Split(string(input), "\n")
 
 	for i, line := range lines {
-		if strings.Contains(line, "{"+strconv.Itoa(tasknumber)) {
+		if strings.Contains(line, ("{" + strconv.Itoa(tasknumber) + " ")) {
 			lines[i] = ""
 		}
 	}
