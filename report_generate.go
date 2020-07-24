@@ -14,7 +14,7 @@ import (
 
 // Count of total tasks, completed tasks, and remaining tasks (aggregate all 3 in parallel)
 func Createreport(w http.ResponseWriter, r *http.Request) {
-	log.Print("create Report")
+	Logger("create Report of Count of total tasks, completed tasks, and remaining tasks")
 	total, completed, remining := calculatetotaltasks()
 	file, err := os.Create("Files/tasksreport.csv")
 	defer file.Close()
@@ -58,6 +58,7 @@ func calculatetotaltasks() (string, string, string) {
 
 //Average number of tasks completed per day (aggregate average in parallel for each day)
 func createReportPerDay(w http.ResponseWriter, r *http.Request) {
+	Logger("create Report of Average number of tasks completed per day")
 	Counttaskscompleted()
 	json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 200, Message: "OK", Response: "PDF Generated. Downloadable Link http://localhost:8000/Files/CompletedTaskreport.csv"})
 
@@ -65,12 +66,14 @@ func createReportPerDay(w http.ResponseWriter, r *http.Request) {
 
 // maximum number of tasks were completed in a single day
 func maxTasksCompleted(w http.ResponseWriter, r *http.Request) {
+	Logger("create Report of maximum number of tasks were completed in a single day")
 	Countmaxtaskscompleted()
 	json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 200, Message: "OK", Response: "PDF Generated. Downloadable Link http://localhost:8000/Files/maxtasksreport.csv"})
 
 }
 
 func maxTasksAdded(w http.ResponseWriter, r *http.Request) {
+	Logger("create Report of maxTasksAdded")
 	Counttasksadded()
 	json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 200, Message: "OK", Response: "PDF Generated.  Downloadable Link http://localhost:8000/Files/addedtasksreport.csv"})
 
@@ -93,7 +96,6 @@ func Counttaskscompleted() {
 		}
 	}
 
-	fmt.Println("counts: ", counts)
 	log.Print("create Report")
 	file, err := os.Create("Files/CompletedTaskreport.csv")
 	defer file.Close()
@@ -131,7 +133,6 @@ func Countmaxtaskscompleted() {
 		}
 	}
 
-	fmt.Println("counts: ", counts)
 	log.Print("create Report")
 	file, err := os.Create("Files/maxtasksreport.csv")
 	defer file.Close()

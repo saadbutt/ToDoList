@@ -54,6 +54,7 @@ type CustomResponse struct {
 }
 
 func CreateTask(w http.ResponseWriter, r *http.Request) {
+	Logger("Creating Task ")
 	var task Task
 	_ = json.NewDecoder(r.Body).Decode(&task)
 	task.ID = getLastID()
@@ -84,4 +85,16 @@ func getLastID() int {
 	}
 	task = tasks[len(tasks)-1]
 	return task.ID + 1
+}
+
+func Logger(logstring string) {
+	f, err := os.OpenFile("Files/TODO.log",
+		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Println(err)
+	}
+	defer f.Close()
+
+	logger := log.New(f, "TODO ", log.LstdFlags)
+	logger.Println(logstring)
 }

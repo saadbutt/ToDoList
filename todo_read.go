@@ -3,35 +3,20 @@ package main
 import (
 	"bufio"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
-
-	"github.com/gorilla/mux"
 )
 
-func GetTasks(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	id := params["id"]
-	log.Print("Get Tasks requested", id)
-	fileContents := readFile("Files/test.txt")
-	if value, err := strconv.Atoi(id); err == nil {
-		json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 200, Message: "OK", Response: fileContents[(value - 1):(value * 10)]})
-	} else {
-		json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 200, Message: "OK", Response: fileContents})
-	}
-}
-
 func GetTask(w http.ResponseWriter, r *http.Request) {
+	log.Print("GET TASK REQUEST")
+	Logger("GET TASK REQUEST")
 	limit, ok := r.URL.Query()["limit"]
 	offset, okay := r.URL.Query()["offset"]
 
 	fileContents := readFile("Files/test.txt")
-	fmt.Println("fileContents:", len(fileContents))
 	if !ok || len(limit[0]) < 0 || !okay || len(offset[0]) < 0 {
-		log.Println("Url Param 'key' is missing")
 		json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 200, Message: "OK", Response: fileContents})
 
 	}
@@ -40,7 +25,6 @@ func GetTask(w http.ResponseWriter, r *http.Request) {
 	// we only want the single item.
 	key, _ := strconv.Atoi(limit[0])
 	value, _ := strconv.Atoi(offset[0])
-	log.Println("Url Param 'key' is: "+string(key), string(value))
 
 	json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 200, Message: "OK", Response: paginate(fileContents, value, key)})
 

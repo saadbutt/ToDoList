@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -15,6 +14,7 @@ import (
 func DeleteTask(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	id := params["id"]
+	Logger("Delete Task with ID: " + id + " requested")
 	log.Print("Delete Task with ID: " + id + " requested")
 	if value, err := strconv.Atoi(id); err == nil {
 		deleteFile("Files/test.txt", value)
@@ -37,9 +37,7 @@ func deleteFile(filename string, tasknumber int) {
 			lines[i] = ""
 		}
 	}
-	fmt.Println("lines", lines)
 	output := strings.Join(lines, "\n")
-	fmt.Println("output", output)
 	err = ioutil.WriteFile(filename, []byte(output), 0644)
 	if err != nil {
 		log.Fatalln(err)
