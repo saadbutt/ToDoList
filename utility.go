@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-
-	"github.com/gorilla/mux"
 )
 
 func CreateMockData() {
@@ -53,23 +51,6 @@ type CustomResponse struct {
 	HttpCode int
 	Message  string
 	Response interface{}
-}
-
-func GetTask(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	id := params["id"]
-	log.Print("Get Task with ID: " + id + " requested")
-	if value, err := strconv.Atoi(id); err == nil {
-		for _, item := range tasks {
-			if item.ID == value {
-				json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 200, Message: "OK", Response: item})
-				return
-			}
-		}
-		json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 404, Message: "Not Found", Response: "No task found with id: " + id})
-	} else {
-		json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 400, Message: "Bad request", Response: "Id is not a number"})
-	}
 }
 
 func CreateTask(w http.ResponseWriter, r *http.Request) {

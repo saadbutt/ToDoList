@@ -1,3 +1,10 @@
+# RUN PROJECT
+
+go build
+./ToDoList
+
+
+
 # ToDoList
 
 Project Summary	"One of the most common tools used by professionals all over the world to capture tasks is a To Do list. They come in all shapes, forms, and features. In this project you will build Backend of a SAAS application that allows its users to build and maintain a To Do list.

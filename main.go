@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 // Tasks todo tasks struct
@@ -27,19 +28,22 @@ type FileMD struct {
 func main() {
 
 	var dir = "./Files"
+	//	fs := http.FileServer(http.Dir("./swaggerui/"))
 
 	CreateMockData()
 	router := mux.NewRouter()
-	router.HandleFunc("/task", GetTasks).Methods("GET")
+	//	router.HandleFunc("/task", GetTasks).Methods("GET")
 	router.HandleFunc("/generatereport", Createreport).Methods("GET")
-	router.HandleFunc("/task/{id}", GetTask).Methods("GET")
+	router.HandleFunc("/task", GetTask).Methods("GET")
 	router.HandleFunc("/task", CreateTasktest).Methods("POST")
 	router.HandleFunc("/task/{id}", DeleteTask).Methods("DELETE")
 	router.HandleFunc("/task/{id}", UpdateTask).Methods("PUT")
-	router.HandleFunc("/Createreportperday", Createreportperday).Methods("GET")
-	router.HandleFunc("/maxtaskscompletedday", maxtaskscompletedday).Methods("GET")
-	router.HandleFunc("/maxtasksadded", maxtasksadded).Methods("GET")
+	router.HandleFunc("/createReportPerDay", createReportPerDay).Methods("GET")
+	router.HandleFunc("/maxTasksCompleted", maxTasksCompleted).Methods("GET")
+	router.HandleFunc("/maxTasksAdded", maxTasksAdded).Methods("GET")
 	router.PathPrefix("/Files/").Handler(http.StripPrefix("/Files/", http.FileServer(http.Dir(dir))))
+	router.PathPrefix("/swagger").Handler(httpSwagger.WrapHandler)
+	// router.PathPrefix("/swaggerui/").Handler(http.StripPrefix("/swaggerui/", fs))
 	log.Fatal(http.ListenAndServe(":8000", router))
 
 }

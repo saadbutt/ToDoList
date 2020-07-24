@@ -32,6 +32,7 @@ func Createreport(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 200, Message: "OK", Response: "PDF Generated. Downloadable Link http://localhost:8000/Files/tasksreport.csv"})
 
 }
+
 func calculatetotaltasks() (string, string, string) {
 	input, err := ioutil.ReadFile("Files/test.txt")
 	if err != nil {
@@ -55,20 +56,23 @@ func calculatetotaltasks() (string, string, string) {
 	return strconv.Itoa(counttotaltasks), strconv.Itoa(completedtasks), strconv.Itoa((counttotaltasks - completedtasks))
 }
 
-func Createreportperday(w http.ResponseWriter, r *http.Request) {
+//Average number of tasks completed per day (aggregate average in parallel for each day)
+func createReportPerDay(w http.ResponseWriter, r *http.Request) {
 	Counttaskscompleted()
 	json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 200, Message: "OK", Response: "PDF Generated. Downloadable Link http://localhost:8000/Files/CompletedTaskreport.csv"})
 
 }
-func maxtaskscompletedday(w http.ResponseWriter, r *http.Request) {
+
+// maximum number of tasks were completed in a single day
+func maxTasksCompleted(w http.ResponseWriter, r *http.Request) {
 	Countmaxtaskscompleted()
 	json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 200, Message: "OK", Response: "PDF Generated. Downloadable Link http://localhost:8000/Files/maxtasksreport.csv"})
 
 }
 
-func maxtasksadded(w http.ResponseWriter, r *http.Request) {
+func maxTasksAdded(w http.ResponseWriter, r *http.Request) {
 	Counttasksadded()
-	json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 200, Message: "OK", Response: "PDF Generated"})
+	json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 200, Message: "OK", Response: "PDF Generated.  Downloadable Link http://localhost:8000/Files/addedtasksreport.csv"})
 
 }
 
@@ -80,10 +84,11 @@ func Counttaskscompleted() {
 
 	lines := strings.Split(string(input), "\n")
 	counts := map[string]int{}
-
+	totaltasks := 0
 	for _, line := range lines {
 		subline := strings.Split(string(line), " ")
 		if len(subline) > 1 && len(subline[4]) > 1 {
+			totaltasks += 1
 			counts[subline[4]]++
 		}
 	}
@@ -100,8 +105,8 @@ func Counttaskscompleted() {
 
 	for key, value := range counts {
 		fmt.Println("Key:", key, "Value:", value)
-		occurence := strconv.Itoa(value)
-		x := []string{"Date", "Tasks"}
+		occurence := strconv.Itoa(value / totaltasks)
+		x := []string{"Date", "AVGTasks"}
 		y := []string{key, occurence}
 		strWrite := [][]string{x, y}
 		csvWriter.WriteAll(strWrite)
@@ -176,7 +181,7 @@ func Counttasksadded() {
 	}
 
 	log.Print("create Report")
-	file, err := os.Create("Files/report.csv")
+	file, err := os.Create("Files/addedtasksreport.csv")
 	defer file.Close()
 
 	if err != nil {
