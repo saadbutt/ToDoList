@@ -15,7 +15,7 @@ func GetTasks(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	id := params["id"]
 	log.Print("Get Tasks requested", id)
-	fileContents := readFile("test.txt")
+	fileContents := readFile("Files/test.txt")
 	if value, err := strconv.Atoi(id); err == nil {
 		json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 200, Message: "OK", Response: fileContents[(value - 1):(value * 10)]})
 	} else {

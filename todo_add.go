@@ -42,7 +42,7 @@ func CreateTasktest(w http.ResponseWriter, r *http.Request) {
 	tasks = append(tasks, task)
 	log.Print("tasks", tasks)
 	//args := []string{tasks[0].Name, tasks[1].Name, tasks[2].Name}
-	writeFile("test.txt", task)
+	writeFile("Files/test.txt", task)
 	json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 201, Message: "Created", Response: task})
 	log.Print("Created Task with ID: " + strconv.Itoa(task.ID))
 }

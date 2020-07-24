@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -15,7 +16,7 @@ import (
 func Createreport(w http.ResponseWriter, r *http.Request) {
 	log.Print("create Report")
 	total, completed, remining := calculatetotaltasks()
-	file, err := os.OpenFile("report.csv", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0666)
+	file, err := os.Create("Files/tasksreport.csv")
 	defer file.Close()
 
 	if err != nil {
@@ -28,10 +29,11 @@ func Createreport(w http.ResponseWriter, r *http.Request) {
 	strWrite := [][]string{x, y}
 	csvWriter.WriteAll(strWrite)
 	csvWriter.Flush()
+	json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 200, Message: "OK", Response: "PDF Generated. Downloadable Link http://localhost:8000/Files/tasksreport.csv"})
 
 }
 func calculatetotaltasks() (string, string, string) {
-	input, err := ioutil.ReadFile("test.txt")
+	input, err := ioutil.ReadFile("Files/test.txt")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -55,14 +57,23 @@ func calculatetotaltasks() (string, string, string) {
 
 func Createreportperday(w http.ResponseWriter, r *http.Request) {
 	Counttaskscompleted()
+	json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 200, Message: "OK", Response: "PDF Generated. Downloadable Link http://localhost:8000/Files/CompletedTaskreport.csv"})
 
 }
 func maxtaskscompletedday(w http.ResponseWriter, r *http.Request) {
 	Countmaxtaskscompleted()
+	json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 200, Message: "OK", Response: "PDF Generated. Downloadable Link http://localhost:8000/Files/maxtasksreport.csv"})
+
+}
+
+func maxtasksadded(w http.ResponseWriter, r *http.Request) {
+	Counttasksadded()
+	json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 200, Message: "OK", Response: "PDF Generated"})
+
 }
 
 func Counttaskscompleted() {
-	input, err := ioutil.ReadFile("test.txt")
+	input, err := ioutil.ReadFile("Files/test.txt")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -79,7 +90,7 @@ func Counttaskscompleted() {
 
 	fmt.Println("counts: ", counts)
 	log.Print("create Report")
-	file, err := os.OpenFile("report.csv", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0666)
+	file, err := os.Create("Files/CompletedTaskreport.csv")
 	defer file.Close()
 
 	if err != nil {
@@ -100,7 +111,7 @@ func Counttaskscompleted() {
 }
 
 func Countmaxtaskscompleted() {
-	input, err := ioutil.ReadFile("test.txt")
+	input, err := ioutil.ReadFile("Files/test.txt")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -110,14 +121,14 @@ func Countmaxtaskscompleted() {
 
 	for _, line := range lines {
 		subline := strings.Split(string(line), " ")
-		if len(subline) > 1 && len(subline[4]) > 1 {
+		if len(subline) > 1 && len(subline[4]) > 1 && strings.Contains(line, "true}") {
 			counts[subline[4]]++
 		}
 	}
 
 	fmt.Println("counts: ", counts)
 	log.Print("create Report")
-	file, err := os.OpenFile("report.csv", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0666)
+	file, err := os.Create("Files/maxtasksreport.csv")
 	defer file.Close()
 
 	if err != nil {
@@ -141,4 +152,47 @@ func Countmaxtaskscompleted() {
 	csvWriter.WriteAll(strWrite)
 	csvWriter.Flush()
 
+}
+
+func Counttasksadded() {
+	input, err := ioutil.ReadFile("Files/test.txt")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	lines := strings.Split(string(input), "\n")
+	counts := map[string]int{}
+	maxdays := 0
+	for _, line := range lines {
+		subline := strings.Split(string(line), " ")
+		if len(subline) > 1 && len(subline[3]) > 1 {
+			counts[subline[3]]++
+
+			fmt.Println(subline[3], counts[subline[3]])
+			if maxdays < counts[subline[3]] {
+				maxdays = counts[subline[3]]
+			}
+		}
+	}
+
+	log.Print("create Report")
+	file, err := os.Create("Files/report.csv")
+	defer file.Close()
+
+	if err != nil {
+		os.Exit(1)
+	}
+	csvWriter := csv.NewWriter(file)
+	x := []string{"Date", "MAX Tasks"}
+
+	for key, value := range counts {
+		fmt.Println("Key:", key, "Value:", value)
+		if maxdays == value {
+			y := []string{key, strconv.Itoa(value)}
+			strWrite := [][]string{x, y}
+			csvWriter.WriteAll(strWrite)
+		}
+	}
+
+	csvWriter.Flush()
 }

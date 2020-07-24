@@ -19,7 +19,7 @@ func UpdateTask(w http.ResponseWriter, r *http.Request) {
 	if value, err := strconv.Atoi(id); err == nil {
 		var task Task
 		_ = json.NewDecoder(r.Body).Decode(&task)
-		updateFile("test.txt", value, task)
+		updateFile("Files/test.txt", value, task)
 
 		json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 200, Message: "OK", Response: value})
 	} else {

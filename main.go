@@ -26,9 +26,7 @@ type FileMD struct {
 
 func main() {
 
-	//args := []string{"a", "b", "c"}
-
-	//	writeFile("test.txt", args)
+	var dir = "./Files"
 
 	CreateMockData()
 	router := mux.NewRouter()
@@ -40,5 +38,8 @@ func main() {
 	router.HandleFunc("/task/{id}", UpdateTask).Methods("PUT")
 	router.HandleFunc("/Createreportperday", Createreportperday).Methods("GET")
 	router.HandleFunc("/maxtaskscompletedday", maxtaskscompletedday).Methods("GET")
+	router.HandleFunc("/maxtasksadded", maxtasksadded).Methods("GET")
+	router.PathPrefix("/Files/").Handler(http.StripPrefix("/Files/", http.FileServer(http.Dir(dir))))
 	log.Fatal(http.ListenAndServe(":8000", router))
+
 }

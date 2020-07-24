@@ -17,7 +17,7 @@ func DeleteTask(w http.ResponseWriter, r *http.Request) {
 	id := params["id"]
 	log.Print("Delete Task with ID: " + id + " requested")
 	if value, err := strconv.Atoi(id); err == nil {
-		deleteFile("test.txt", value)
+		deleteFile("Files/test.txt", value)
 		json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 200, Message: "OK", Response: "Task deleted"})
 	} else {
 		json.NewEncoder(w).Encode(&CustomResponse{HttpCode: 400, Message: "Bad request", Response: "Id is not a number"})
