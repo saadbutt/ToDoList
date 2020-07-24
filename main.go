@@ -38,5 +38,7 @@ func main() {
 	router.HandleFunc("/task", CreateTasktest).Methods("POST")
 	router.HandleFunc("/task/{id}", DeleteTask).Methods("DELETE")
 	router.HandleFunc("/task/{id}", UpdateTask).Methods("PUT")
+	router.HandleFunc("/Createreportperday", Createreportperday).Methods("GET")
+	router.HandleFunc("/maxtaskscompletedday", maxtaskscompletedday).Methods("GET")
 	log.Fatal(http.ListenAndServe(":8000", router))
 }
